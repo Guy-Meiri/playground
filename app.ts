@@ -1,3 +1,32 @@
+interface Validatable {
+  value: string | number;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+function validate(validatableInput: Validatable) {
+  let isValid = true;
+  if (validatableInput.required) {
+    isValid = isValid && validatableInput.toString().trim().length !== 0;
+  }
+  if (validatableInput.minLength && typeof validatableInput.value === "string") {
+    isValid = isValid && validatableInput.value.length > validatableInput.minLength;
+  }
+  if (validatableInput.maxLength && typeof validatableInput.value === "string") {
+    isValid = isValid && validatableInput.value.length > validatableInput.maxLength;
+  }
+  if (validatableInput.min != null && typeof validatableInput.value === "number") {
+    isValid = isValid && validatableInput.value > validatableInput.min;
+  }
+  if (validatableInput.max != null && typeof validatableInput.value === "number") {
+    isValid = isValid && validatableInput.value < validatableInput.max;
+  }
+  return isValid;
+}
+
 function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
   const adjDescriptor: PropertyDescriptor = {
@@ -45,7 +74,6 @@ class ProjectInput {
     const userInput = this.getUserInput();
     if (Array.isArray(userInput)) {
       const [title, desc, people] = userInput;
-      console.log(title, desc, people);
     }
 
     this.clearInputs();
@@ -62,9 +90,24 @@ class ProjectInput {
     const description = this.descriptionElement.value;
     const people = this.peopleInputElement.value;
 
-    if (title.trim().length === 0 || description.trim().length === 0 || people.trim().length === 0) {
+    const titleValidatable: Validatable = {
+      value: title,
+      required: true,
+    };
+    const descriptionValidatable: Validatable = {
+      value: description,
+      required: true,
+      minLength: 5,
+    };
+    const peopleValidatable: Validatable = {
+      value: people,
+      required: true,
+      min: 1,
+      max: 5,
+    };
+
+    if (!validate(titleValidatable) || !validate(descriptionValidatable) || !validate(peopleValidatable)) {
       alert("invalid input");
-      return;
     }
 
     return [title, description, +people];
