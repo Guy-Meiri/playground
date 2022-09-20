@@ -42,10 +42,32 @@ class ProjectInput {
   @autobind
   private submitHandler(event: Event) {
     event.preventDefault();
+    const userInput = this.getUserInput();
+    if (Array.isArray(userInput)) {
+      const [title, desc, people] = userInput;
+      console.log(title, desc, people);
+    }
+
+    this.clearInputs();
+  }
+
+  private clearInputs() {
+    this.titleInputElement.value = "";
+    this.descriptionElement.value = "";
+    this.peopleInputElement.value = "";
+  }
+
+  private getUserInput(): [string, string, number] | void {
     const title = this.titleInputElement.value;
     const description = this.descriptionElement.value;
     const people = this.peopleInputElement.value;
-    console.log(title + description + people);
+
+    if (title.trim().length === 0 || description.trim().length === 0 || people.trim().length === 0) {
+      alert("invalid input");
+      return;
+    }
+
+    return [title, description, +people];
   }
 
   private configure() {
